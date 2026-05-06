@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Lucky Draw by Super Mink</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;700&family=Montserrat:wght@900&display=swap" rel="stylesheet">
+    <style>
+        :root { 
+            --pointer-color-main: #ef4444; 
+            --pointer-color-dark: #7f1d1d;
+            --bulb-on-color: #fff700;
+            --ring-color: #1e293b;
+        }
+        body { 
+            font-family: 'IBM Plex Sans Thai', sans-serif; 
+            min-height: 100vh; margin: 0;
+            background-color: #e2e8f0;
+            background-size: cover; background-position: center; background-repeat: no-repeat;
+            display: flex; flex-direction: column; align-items: center; justify-content: center; 
+            overflow: hidden; padding: 10px;
+        }
+
+        #top-logo-container { margin-bottom: 10px; display: none; text-align: center; width: 100%; }
+        #top-logo-img { height: auto; object-fit: contain; margin: 0 auto; }
+        
+        #headline-display { 
+            font-weight: 900; text-align: center; margin-bottom: 2rem;
+            text-transform: uppercase; line-height: 1.1; 
+            word-wrap: break-word; width: 100%;
+        }
+
+        /* ปรับปรุงตรงนี้เพื่อให้วงกลมไม่เบี้ยว */
+        #wheel-outer-ring {
+            position: relative; 
+            width: 90vw; /* ใช้ความกว้างหน้าจอเป็นหลัก */
+            max-width: 500px; /* จำกัดขนาดสูงสุด */
+            aspect-ratio: 1 / 1; /* บังคับให้เป็นจัตุรัสเสมอ */
+            background: var(--ring-color); border-radius: 50%; padding: 15px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.4), inset 0 2px 10px rgba(255,255,255,0.1);
+            display: flex; align-items: center; justify-content: center;
+            flex-shrink: 0; /* ป้องกันโดนบีบจาก Flexbox */
+        }
+
+        #bulbs-container { position: absolute; inset: 0; pointer-events: none; border-radius: 50%; }
+
+        .center-ring-inner {
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            width: 22%; height: 22%; z-index: 50; border-radius: 50%; 
+            background: white; border: 3px solid #cbd5e1;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            display: flex; align-items: center; justify-content: center; overflow: hidden; pointer-events: none;
+        }
+
+        .pointer-container { 
+            position: absolute; right: -5px; top: 50%; transform: translateY(-50%); 
+            z-index: 100; filter: drop-shadow(-3px 3px 5px rgba(0,0,0,0.4)); 
+        }
+        
+        #pointer { 
+            width: 35px; height: 50px; 
+            background: linear-gradient(135deg, var(--pointer-color-main) 0%, var(--pointer-color-dark) 100%); 
+            clip-path: polygon(50% 100%, 0% 15%, 20% 0%, 80% 0%, 100% 15%); 
+            transform-origin: center 5px; transform: rotate(90deg);
+            transition: transform 0.1s cubic-bezier(0.17, 0.67, 0.83, 0.67);
+        }
+
+        #wheel-wrapper { position: relative; width: 100%; height: 100%; cursor: pointer; }
+        canvas { width: 100% !important; height: 100% !important; border-radius: 50%; display: block; }
+
+        .bulb { 
+            position: absolute; width: 2.5%; height: 2.5%; 
+            background: #475569; border-radius: 50%; z-index: 6; 
+            transform: translate(-50%, -50%); 
+        }
+        .bulb.active { background: var(--bulb-on-color); box-shadow: 0 0 10px var(--bulb-on-color); }
+
+        #admin-panel { position: fixed; inset: 0; background: #f8fafc; z-index: 2000; display: none; flex-direction: column; }
+        #admin-panel.show { display: flex; }
+        
+        .footer-text { 
+            margin-top: 30px; color: #64748b; font-size: 14px; font-weight: 800; 
+            letter-spacing: 0.2em; text-transform: uppercase; cursor: pointer; 
+        }
+    </style>
+</head>
+<body>
+
+    <div id="top-logo-container"><img id="top-logo-img" src=""></div>
+    <h1 id="headline-display">LUCKY DRAW</h1>
+
+    <div id="wheel-outer-ring">
+        <div id="bulbs-container"></div>
+        <div class="pointer-container"><div id="pointer"></div></div>
+        <div class="center-ring-inner">
+            <img id="inner-logo-img" src="" style="display:none;" class="max-w-[80%] max-h-[80%] object-contain">
+            <span id="logo-placeholder" class="text-slate-400 text-[10px] font-black uppercase">Start</span>
+        </div>
+        <div id="wheel-wrapper" onclick="startSpin()">
+            <canvas id="wheelCanvas" width="800" height="800"></canvas>
+        </div>
+    </div>
+
+    <div onclick="toggleAdmin()" class="footer-text">Setup System</div>
+
+    <!-- Admin Panel (ตัดให้กระชับคงเดิม) -->
+    <div id="admin-panel">
+        <div class="bg-white border-b p-4 flex justify-between items-center shadow-sm">
+            <b class="text-xl">Setup System</b>
+            <button onclick="toggleAdmin()" class="text-4xl text-slate-300">&times;</button>
+        </div>
+        <div class="flex-1 overflow-y-auto p-6 bg-slate-50">
+            <div id="tab-display" class="space-y-4">
+                <div class="bg-white p-4 rounded-xl border">
+                    <label class="block text-xs font-bold mb-2">Headline</label>
+                    <input id="in-headline" type="text" class="w-full p-2 border rounded-lg">
+                    <div class="mt-2 flex gap-4">
+                        <input type="range" id="in-headline-size" min="20" max="100" class="flex-1">
+                        <input type="color" id="in-font-color">
+                    </div>
+                </div>
+                <div class="bg-white p-4 rounded-xl border">
+                    <label class="block text-xs font-bold mb-2">Wheel Size (px on desktop)</label>
+                    <input type="range" id="in-wheel-scale" min="280" max="800" class="w-full" oninput="updateWheelScale(this.value)">
+                </div>
+                <div id="prize-list-container" class="space-y-2"></div>
+                <button onclick="addPrizeRow()" class="w-full p-3 border-2 border-dashed rounded-xl">+ Add Prize</button>
+            </div>
+        </div>
+        <div class="p-6 bg-white border-t"><button onclick="save()" class="w-full bg-orange-500 text-white p-4 rounded-xl font-bold">SAVE & REFRESH</button></div>
+    </div>
+
+    <script>
+        const STORAGE_KEY = 'lucky_draw_v26_supermink';
+        let config = JSON.parse(localStorage.getItem(STORAGE_KEY)) || {
+            headline: 'LUCKY DRAW', headlineSize: 42, fontColor: '#1e293b',
+            wa: '#f97316', wb: '#1e293b', wheelTextColor: '#ffffff',
+            ringColor: '#1e293b', bulb: '#fff700', pointerColor: '#ef4444',
+            wheelScale: 480, prizeFontSize: 28, 
+            prizes: [{name:'GIFT A', percent: 20}, {name:'GIFT B', percent: 20}, {name:'GIFT C', percent: 20}, {name:'THANK YOU', percent: 40}],
+            headerLogo: '', centerLogo: '', bgImage: ''
+        };
+
+        const canvas = document.getElementById('wheelCanvas');
+        const ctx = canvas.getContext('2d');
+        let isSpinning = false;
+        let currentRotation = 0; 
+        let lastPrizeIndex = -1;
+
+        function drawWheel() {
+            if (config.prizes.length === 0) return;
+            const c = canvas.width / 2, r = c - 10, arc = (2 * Math.PI) / config.prizes.length;
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            config.prizes.forEach((p, i) => {
+                const angle = i * arc;
+                ctx.fillStyle = i % 2 ? config.wb : config.wa;
+                ctx.beginPath(); ctx.moveTo(c, c); ctx.arc(c, c, r, angle, angle + arc); ctx.fill();
+                ctx.save(); ctx.translate(c, c); ctx.rotate(angle + arc / 2);
+                ctx.fillStyle = config.wheelTextColor; ctx.textAlign = 'right'; 
+                ctx.font = `900 ${config.prizeFontSize}px IBM Plex Sans Thai`; 
+                ctx.fillText(p.name, r - 50, 10); ctx.restore();
+            });
+        }
+
+        function startSpin() {
+            if (isSpinning) return;
+            isSpinning = true;
+            const totalWeight = config.prizes.reduce((sum, p) => sum + (parseFloat(p.percent) || 0), 0);
+            let randomNum = Math.random() * totalWeight;
+            let winnerIndex = 0;
+            for (let i = 0; i < config.prizes.length; i++) {
+                if (randomNum < (parseFloat(config.prizes[i].percent) || 0)) { winnerIndex = i; break; }
+                randomNum -= (parseFloat(config.prizes[i].percent) || 0);
+            }
+
+            const degPerPrize = 360 / config.prizes.length;
+            const stopAt = 360 - (winnerIndex * degPerPrize + (degPerPrize / 2));
+            const totalRotation = currentRotation + (360 * 8) + stopAt - (currentRotation % 360);
+            
+            const wheel = document.getElementById('wheel-wrapper');
+            wheel.style.transition = `transform 5s cubic-bezier(0.15, 0, 0.15, 1)`;
+            wheel.style.transform = `rotate(${totalRotation}deg)`;
+            
+            setTimeout(() => { 
+                currentRotation = totalRotation; 
+                isSpinning = false;
+                alert("ยินดีด้วย! คุณได้รับ: " + config.prizes[winnerIndex].name);
+            }, 5200);
+        }
+
+        function updateAnimations() {
+            const wheel = document.getElementById('wheel-wrapper');
+            const pointer = document.getElementById('pointer');
+            const style = window.getComputedStyle(wheel);
+            const matrix = new DOMMatrixReadOnly(style.transform);
+            const angle = Math.atan2(matrix.b, matrix.a) * (180 / Math.PI);
+            const idleOffset = Math.floor(Date.now() / 400);
+            
+            document.querySelectorAll('.bulb').forEach((b, i) => {
+                b.classList.toggle('active', (i + idleOffset + Math.floor(angle/20)) % 2 === 0);
+            });
+            requestAnimationFrame(updateAnimations);
+        }
+
+        function updateWheelScale(v) {
+            const ring = document.getElementById('wheel-outer-ring');
+            ring.style.maxWidth = v + 'px';
+            repositionBulbs();
+        }
+
+        function repositionBulbs() {
+            const ring = document.getElementById('wheel-outer-ring');
+            const bulbs = document.querySelectorAll('.bulb');
+            const radius = 50; 
+            const bulbDistance = 47; 
+            bulbs.forEach((b, i) => {
+                const angle = (i * (360 / bulbs.length)) * (Math.PI / 180);
+                b.style.left = (radius + bulbDistance * Math.cos(angle)) + '%';
+                b.style.top = (radius + bulbDistance * Math.sin(angle)) + '%';
+            });
+        }
+
+        function renderPrizeInputs() {
+            const container = document.getElementById('prize-list-container');
+            container.innerHTML = '';
+            config.prizes.forEach((p, i) => {
+                const row = document.createElement('div');
+                row.className = "flex gap-2 bg-white p-2 rounded-lg border";
+                row.innerHTML = `<input class="flex-1 text-sm font-bold" value="${p.name}" oninput="config.prizes[${i}].name=this.value">
+                                 <input type="number" class="w-16 text-center border rounded" value="${p.percent}" oninput="config.prizes[${i}].percent=this.value">
+                                 <button onclick="config.prizes.splice(${i},1); renderPrizeInputs();" class="text-red-500">×</button>`;
+                container.appendChild(row);
+            });
+        }
+
+        function toggleAdmin() {
+            const p = document.getElementById('admin-panel');
+            p.classList.toggle('show');
+            if(p.classList.contains('show')) renderPrizeInputs();
+        }
+
+        function save() {
+            config.headline = document.getElementById('in-headline').value;
+            config.headlineSize = document.getElementById('in-headline-size').value;
+            config.fontColor = document.getElementById('in-font-color').value;
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(config));
+            location.reload();
+        }
+
+        window.onload = () => {
+            const h = document.getElementById('headline-display');
+            h.textContent = config.headline; h.style.color = config.fontColor; h.style.fontSize = config.headlineSize + 'px';
+            
+            const bContainer = document.getElementById('bulbs-container');
+            for (let i = 0; i < 20; i++) {
+                const b = document.createElement('div'); b.className = 'bulb'; bContainer.appendChild(b);
+            }
+
+            updateWheelScale(config.wheelScale);
+            drawWheel();
+            updateAnimations();
+            window.addEventListener('resize', repositionBulbs);
+            
+            // Sync admin values
+            document.getElementById('in-headline').value = config.headline;
+            document.getElementById('in-headline-size').value = config.headlineSize;
+            document.getElementById('in-font-color').value = config.fontColor;
+            document.getElementById('in-wheel-scale').value = config.wheelScale;
+        };
+    </script>
+</body>
+</html>
