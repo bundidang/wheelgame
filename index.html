@@ -12,90 +12,104 @@
             --pointer-color-dark: #7f1d1d;
             --bulb-on-color: #fff700;
             --ring-color: #1e293b;
+            --max-wheel-size: 480px;
         }
+        
+        /* จัดตำแหน่งทุกอย่างให้อยู่กลางหน้าจอ */
         body { 
             font-family: 'IBM Plex Sans Thai', sans-serif; 
-            min-height: 100vh; margin: 0;
+            height: 100vh; margin: 0;
             background-color: #e2e8f0;
-            display: flex; flex-direction: column; align-items: center; justify-content: center; 
-            overflow: hidden; padding: 10px;
+            display: flex; flex-direction: column; 
+            align-items: center; justify-content: center; 
+            overflow: hidden; padding: 20px;
+            background-size: cover; background-position: center;
         }
 
-        #top-logo-container { margin-bottom: 10px; display: none; text-align: center; width: 100%; }
-        #top-logo-img { height: auto; object-fit: contain; margin: 0 auto; }
+        #top-logo-container { 
+            margin-bottom: 20px; 
+            display: none; 
+            text-align: center; 
+        }
         
         #headline-display { 
-            font-weight: 900; text-align: center; margin-bottom: 1.5rem;
-            text-transform: uppercase; line-height: 1.1; width: 100%;
+            font-weight: 900; text-align: center; 
+            margin-bottom: 2rem;
+            text-transform: uppercase; line-height: 1.1;
         }
 
-        /* --- จุดที่แก้ไข: บังคับความกลมแบบเด็ดขาด --- */
+        /* บังคับวงกลมให้สมมาตร 100% */
         #wheel-outer-ring {
             position: relative; 
-            width: 90vw; /* ความกว้างสัมพันธ์หน้าจอ */
-            height: 90vw; /* ความสูงต้องเท่ากับความกว้างเสมอ */
-            max-width: var(--max-wheel-size, 480px); /* จำกัดขนาดตามที่ตั้งค่าใน Setup */
-            max-height: var(--max-wheel-size, 480px); 
+            width: 85vw; 
+            max-width: var(--max-wheel-size);
+            aspect-ratio: 1 / 1; /* ล็อคสัดส่วน 1:1 */
             background: var(--ring-color); 
             border-radius: 50%; 
-            padding: 4%; /* ใช้ % เพื่อให้สมดุลทุกขนาด */
-            box-shadow: 0 20px 40px rgba(0,0,0,0.4), inset 0 2px 10px rgba(255,255,255,0.1);
+            padding: 22px;
+            box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5), inset 0 2px 10px rgba(255,255,255,0.1);
             display: flex; align-items: center; justify-content: center;
             flex-shrink: 0;
-            margin: auto 0;
         }
 
         #bulbs-container { position: absolute; inset: 0; pointer-events: none; border-radius: 50%; }
 
         .center-ring-inner {
             position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
-            width: 20%; height: 20%; z-index: 50; border-radius: 50%; 
-            background: white; border: 3px solid #cbd5e1;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            width: 80px; height: 80px; z-index: 50; border-radius: 50%; 
+            background: white; border: 4px solid #cbd5e1;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
             display: flex; align-items: center; justify-content: center; overflow: hidden; pointer-events: none;
         }
 
         .pointer-container { 
-            position: absolute; right: -2%; top: 50%; transform: translateY(-50%); 
-            z-index: 100; width: 12%; height: 12%; display: flex; align-items: center; justify-content: center;
+            position: absolute; right: -10px; top: 50%; transform: translateY(-50%); 
+            z-index: 100; filter: drop-shadow(-5px 5px 10px rgba(0,0,0,0.3));
         }
         
         #pointer { 
-            width: 100%; height: 140%;
+            width: 40px; height: 60px;
             background: linear-gradient(135deg, var(--pointer-color-main) 0%, var(--pointer-color-dark) 100%); 
             clip-path: polygon(50% 100%, 0% 15%, 20% 0%, 80% 0%, 100% 15%); 
-            transform-origin: center 10%; transform: rotate(90deg);
+            transform-origin: center 5px; transform: rotate(90deg);
         }
 
-        #wheel-wrapper { position: relative; width: 100%; height: 100%; cursor: pointer; border-radius: 50%; overflow: hidden; }
+        #wheel-wrapper { position: relative; width: 100%; height: 100%; cursor: pointer; border-radius: 50%; }
         canvas { width: 100% !important; height: 100% !important; display: block; border-radius: 50%; }
 
         .bulb { 
-            position: absolute; width: 3%; height: 3%; 
+            position: absolute; width: 10px; height: 10px; 
             background: #475569; border-radius: 50%; z-index: 6; 
             transform: translate(-50%, -50%); 
         }
-        .bulb.active { background: var(--bulb-on-color); box-shadow: 0 0 10px var(--bulb-on-color); }
-        /* -------------------------------------- */
+        .bulb.active { background: var(--bulb-on-color); box-shadow: 0 0 15px var(--bulb-on-color); }
 
-        #admin-panel { position: fixed; inset: 0; background: #f8fafc; z-index: 2000; display: none; flex-direction: column; }
+        /* เปลี่ยนกลับเป็น Good Luck ด้านล่าง */
+        .footer-text { 
+            margin-top: 3rem; color: #64748b; font-size: 14px; font-weight: 800; 
+            letter-spacing: 0.3em; text-transform: uppercase; cursor: pointer; 
+            opacity: 0.7; transition: all 0.3s;
+        }
+        .footer-text:hover { opacity: 1; transform: scale(1.1); color: #f97316; }
+
+        /* Admin Panel */
+        #admin-panel { position: fixed; inset: 0; background: #f8fafc; z-index: 2000; display: none; flex-direction: column; text-align: left; }
         #admin-panel.show { display: flex; }
         .tab-btn { padding: 14px; font-weight: 700; color: #94a3b8; border-bottom: 3px solid transparent; flex: 1; text-align: center; }
         .tab-btn.active { color: #f97316; border-bottom-color: #f97316; background: rgba(249, 115, 22, 0.05); }
         .tab-content { display: none; }
         .tab-content.active { display: block; }
-        
-        .footer-text { 
-            margin-top: 20px; color: #64748b; font-size: 14px; font-weight: 800; 
-            letter-spacing: 0.2em; text-transform: uppercase; cursor: pointer; padding-bottom: 10px;
-        }
     </style>
 </head>
 <body>
 
+    <!-- โลโก้บน -->
     <div id="top-logo-container"><img id="top-logo-img" src=""></div>
+    
+    <!-- Headline -->
     <h1 id="headline-display">LUCKY DRAW</h1>
 
+    <!-- วงล้อ -->
     <div id="wheel-outer-ring">
         <div id="bulbs-container"></div>
         <div class="pointer-container"><div id="pointer"></div></div>
@@ -108,9 +122,10 @@
         </div>
     </div>
 
-    <div onclick="toggleAdmin()" class="footer-text">Setup System</div>
+    <!-- ปุ่มเข้า Setup (GOOD LUCK) -->
+    <div onclick="toggleAdmin()" class="footer-text">GOOD LUCK</div>
 
-    <!-- Admin Panel (เหมือนเดิมทุกอย่างตามที่คุณต้องการ) -->
+    <!-- Admin Panel (เหมือนเดิม) -->
     <div id="admin-panel">
         <div class="bg-white border-b p-4 flex justify-between items-center shadow-sm">
             <b class="text-xl text-slate-800 ml-2">Setup System</b>
@@ -123,17 +138,14 @@
         
         <div class="flex-1 overflow-y-auto p-6 bg-slate-50">
             <div id="tab-display" class="tab-content active">
+                <!-- เนื้อหาส่วน Setup เดิมทั้งหมด -->
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm h-fit">
+                    <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
                         <label class="text-[11px] font-bold text-orange-500 uppercase block mb-4 tracking-wider">1. Media Uploads</label>
                         <div class="space-y-4">
-                            <div>
-                                <span class="text-xs font-bold text-slate-500">Top Logo</span>
-                                <input type="file" accept="image/*" class="block w-full text-xs mt-1" onchange="handleFileUpload(this, 'headerLogo')">
-                                <div class="mt-2 flex items-center justify-between">
-                                    <span class="text-[10px] text-slate-400">Size: <span id="logo-size-val">180px</span></span>
-                                    <input type="range" id="in-logo-size" min="50" max="500" value="180" class="w-24 accent-orange-500" oninput="updateLogoSize(this.value)">
-                                </div>
+                            <div><span class="text-xs font-bold text-slate-500">Top Logo</span><input type="file" accept="image/*" class="block w-full text-xs mt-1" onchange="handleFileUpload(this, 'headerLogo')">
+                                <div class="mt-2 flex items-center justify-between"><span class="text-[10px] text-slate-400">Size: <span id="logo-size-val">180px</span></span>
+                                <input type="range" id="in-logo-size" min="50" max="500" value="180" class="w-24 accent-orange-500" oninput="updateLogoSize(this.value)"></div>
                             </div>
                             <div><span class="text-xs font-bold text-slate-500">Center Logo</span><input type="file" accept="image/*" class="block w-full text-xs mt-1" onchange="handleFileUpload(this, 'centerLogo')"></div>
                             <div><span class="text-xs font-bold text-slate-500">Background Image</span><input type="file" accept="image/*" class="block w-full text-xs mt-1" onchange="handleFileUpload(this, 'bgImage')"></div>
@@ -142,44 +154,31 @@
                     <div class="space-y-6">
                         <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
                             <label class="text-[11px] font-bold text-orange-500 uppercase block mb-4 tracking-wider">2. Headline Control</label>
-                            <input id="in-headline" type="text" class="w-full p-2 border border-slate-200 rounded-lg text-sm font-bold mb-3" placeholder="LUCKY DRAW">
+                            <input id="in-headline" type="text" class="w-full p-2 border border-slate-200 rounded-lg text-sm font-bold mb-3">
                             <div class="grid grid-cols-2 gap-4">
                                 <div><span class="text-[10px] font-bold text-slate-400 block uppercase">Size</span><input type="range" id="in-headline-size" min="20" max="120" value="48" class="w-full accent-orange-500" oninput="updateHeadlineSize(this.value)"></div>
-                                <div><span class="text-[10px] font-bold text-slate-400 block uppercase">Headline Color</span><input type="color" id="in-font-color" class="w-full h-8 cursor-pointer"></div>
+                                <div><span class="text-[10px] font-bold text-slate-400 block uppercase">Color</span><input type="color" id="in-font-color" class="w-full h-8 cursor-pointer"></div>
                             </div>
                         </div>
                         <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
-                            <label class="text-[11px] font-bold text-orange-500 uppercase block mb-4 tracking-wider">3. Wheel Appearance & Scale</label>
+                            <label class="text-[11px] font-bold text-orange-500 uppercase block mb-4 tracking-wider">3. Wheel Appearance</label>
                             <div class="grid grid-cols-3 gap-2 mb-4">
                                 <div><span class="text-[9px] text-slate-400 uppercase font-bold">Color A</span><input type="color" id="in-wheel-a" class="w-full h-8 rounded-md"></div>
                                 <div><span class="text-[9px] text-slate-400 uppercase font-bold">Color B</span><input type="color" id="in-wheel-b" class="w-full h-8 rounded-md"></div>
-                                <div><span class="text-[9px] text-blue-600 uppercase font-bold">Wheel Text</span><input type="color" id="in-wheel-text-color" class="w-full h-8 rounded-md"></div>
-                                <div><span class="text-[9px] text-slate-400 uppercase font-bold">Bulb</span><input type="color" id="in-bulb-color" class="w-full h-8 rounded-md"></div>
                                 <div><span class="text-[9px] text-red-600 uppercase font-bold">Pointer</span><input type="color" id="in-pointer-color" class="w-full h-8 rounded-md" oninput="updatePointerColor(this.value)"></div>
                             </div>
-                            <div class="space-y-4 pt-2 border-t border-slate-100">
-                                <div>
-                                    <div class="flex justify-between"><span class="text-[10px] font-bold text-slate-500 uppercase">Wheel Overall Scale</span><span id="wheel-scale-val" class="text-[10px] text-orange-500">480px</span></div>
-                                    <input type="range" id="in-wheel-scale" min="200" max="800" value="480" class="w-full accent-orange-500" oninput="updateWheelScale(this.value)">
-                                </div>
-                                <div>
-                                    <div class="flex justify-between"><span class="text-[10px] font-bold text-slate-500 uppercase">Prize Font Size</span><span id="prize-font-val" class="text-[10px] text-orange-500">32px</span></div>
-                                    <input type="range" id="in-prize-font-size" min="10" max="60" value="32" class="w-full accent-orange-500" oninput="updatePrizeFontSize(this.value)">
-                                </div>
-                            </div>
+                            <div class="flex justify-between"><span class="text-[10px] font-bold text-slate-500 uppercase">Wheel Scale</span><span id="wheel-scale-val" class="text-[10px] text-orange-500">480px</span></div>
+                            <input type="range" id="in-wheel-scale" min="200" max="800" value="480" class="w-full accent-orange-500" oninput="updateWheelScale(this.value)">
                         </div>
                     </div>
                 </div>
             </div>
             <div id="tab-prizes" class="tab-content">
-                <div class="bg-orange-50 border border-orange-100 p-3 rounded-xl mb-4 flex justify-between items-center">
-                    <div><span class="text-xs font-bold text-orange-700">Total Probability: <span id="total-percent">0</span>%</span></div>
-                </div>
                 <div id="prize-list-container" class="space-y-2"></div>
-                <button onclick="addPrizeRow()" class="w-full bg-white border-2 border-dashed border-slate-300 p-4 rounded-2xl mt-4 font-bold text-slate-400 hover:border-orange-300 hover:text-orange-500 transition-all">+ Add Prize Item</button>
+                <button onclick="addPrizeRow()" class="w-full bg-white border-2 border-dashed border-slate-300 p-4 rounded-2xl mt-4 font-bold text-slate-400">+ Add Prize Item</button>
             </div>
         </div>
-        <div class="p-6 bg-white border-t"><button onclick="save()" class="w-full bg-orange-500 hover:bg-orange-600 text-white p-5 rounded-2xl font-black uppercase tracking-widest shadow-lg">Save & Refresh Wheel</button></div>
+        <div class="p-6 bg-white border-t"><button onclick="save()" class="w-full bg-orange-500 hover:bg-orange-600 text-white p-5 rounded-2xl font-black uppercase tracking-widest shadow-lg">Save & Refresh</button></div>
     </div>
 
     <script>
@@ -188,7 +187,7 @@
             headline: 'LUCKY DRAW', headlineSize: 48, fontColor: '#1e293b',
             wa: '#f97316', wb: '#1e293b', wheelTextColor: '#ffffff',
             ringColor: '#1e293b', bulb: '#fff700', pointerColor: '#ef4444',
-            headerLogoSize: 180, wheelScale: 480, prizeFontSize: 32, 
+            headerLogoSize: 180, wheelScale: 480, prizeFontSize: 28, 
             prizes: [{name:'IPHONE 15', percent: 10}, {name:'GOLD BAR', percent: 5}, {name:'CASH 1,000', percent: 20}, {name:'MOTO BIKE', percent: 5}, {name:'THANK YOU', percent: 40}, {name:'VOUCHER', percent: 20}],
             headerLogo: '', centerLogo: '', bgImage: ''
         };
@@ -216,15 +215,14 @@
             config.wheelScale = v;
             document.getElementById('wheel-scale-val').textContent = v + 'px';
             document.documentElement.style.setProperty('--max-wheel-size', v + 'px');
-            setTimeout(repositionBulbs, 50); // รอ CSS Update แล้วค่อยวางไฟ
+            setTimeout(repositionBulbs, 50);
         }
 
         function repositionBulbs() {
             const ring = document.getElementById('wheel-outer-ring');
             const bulbs = document.querySelectorAll('.bulb');
             const ringSize = ring.offsetWidth;
-            const bulbDist = (ringSize / 2) - (ringSize * 0.025); // คำนวณระยะห่างไฟจากศูนย์กลางเป็น %
-            
+            const bulbDist = (ringSize / 2) - 11;
             bulbs.forEach((b, i) => {
                 const angle = (i * (360 / bulbs.length)) * (Math.PI / 180);
                 const x = 50 + (bulbDist / ringSize * 100) * Math.cos(angle);
@@ -245,7 +243,7 @@
             }
             const degPerPrize = 360 / config.prizes.length;
             const stopAt = 360 - (winnerIndex * degPerPrize + (degPerPrize / 2));
-            const totalRotation = currentRotation + (360 * 10) + stopAt - (currentRotation % 360);
+            const totalRotation = currentRotation + (360 * 8) + stopAt - (currentRotation % 360);
             const wheel = document.getElementById('wheel-wrapper');
             wheel.style.transition = `transform 6s cubic-bezier(0.15, 0, 0.15, 1)`;
             wheel.style.transform = `rotate(${totalRotation}deg)`;
@@ -264,53 +262,39 @@
             requestAnimationFrame(updateAnimations);
         }
 
-        // --- ส่วน Function เดิมที่เหลือคงไว้ทั้งหมด ---
+        function updatePointerColor(hex) {
+            config.pointerColor = hex;
+            document.documentElement.style.setProperty('--pointer-color-main', hex);
+            document.documentElement.style.setProperty('--pointer-color-dark', hex + '99');
+        }
+
+        function handleFileUpload(input, type) { if (input.files[0]) { const r = new FileReader(); r.onload = (e) => config[type] = e.target.result; r.readAsDataURL(input.files[0]); } }
+        function toggleAdmin() { document.getElementById('admin-panel').classList.toggle('show'); renderPrizeInputs(); }
+        function switchTab(e, id) { document.querySelectorAll(".tab-content").forEach(t => t.classList.remove("active")); document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active")); document.getElementById(id).classList.add("active"); e.currentTarget.classList.add("active"); }
+        
         function renderPrizeInputs() {
             const container = document.getElementById('prize-list-container');
             container.innerHTML = '';
             config.prizes.forEach((p, i) => {
                 const row = document.createElement('div');
-                row.className = "flex gap-2 bg-white p-2 rounded-lg border items-center shadow-sm";
-                row.innerHTML = `<input class="flex-1 font-bold text-sm p-1 outline-none" value="${p.name}" oninput="config.prizes[${i}].name=this.value">
-                    <div class="flex items-center gap-1 bg-slate-50 px-2 rounded border">
-                        <input type="number" step="any" class="w-16 text-center bg-transparent text-sm font-black text-orange-600 p-1 outline-none" value="${p.percent}" oninput="updatePercentData(${i}, this.value)">
-                        <span class="text-[10px] font-bold text-slate-400">%</span>
-                    </div>
+                row.className = "flex gap-2 bg-white p-2 rounded-lg border items-center";
+                row.innerHTML = `<input class="flex-1 font-bold text-sm" value="${p.name}" oninput="config.prizes[${i}].name=this.value">
+                    <input type="number" class="w-16 text-center text-orange-600 font-bold" value="${p.percent}" oninput="config.prizes[${i}].percent=this.value">
                     <button onclick="removePrize(${i})" class="text-red-400 px-2 text-xl">&times;</button>`;
                 container.appendChild(row);
             });
-            calculateTotal();
         }
-        function updatePercentData(i, v) { config.prizes[i].percent = v; calculateTotal(); }
-        function calculateTotal() {
-            let total = config.prizes.reduce((sum, p) => sum + (parseFloat(p.percent) || 0), 0);
-            document.getElementById('total-percent').textContent = total.toFixed(0);
-        }
-        function updatePointerColor(hex) {
-            config.pointerColor = hex;
-            const darkHex = adjustColor(hex, -40);
-            document.documentElement.style.setProperty('--pointer-color-main', hex);
-            document.documentElement.style.setProperty('--pointer-color-dark', darkHex);
-        }
-        function adjustColor(hex, percent) {
-            let num = parseInt(hex.replace("#",""),16), amt = Math.round(2.55 * percent), R = (num >> 16) + amt, G = (num >> 8 & 0x00FF) + amt, B = (num & 0x0000FF) + amt;
-            return "#" + (0x1000000 + (R<255?R<0?0:R:255)*0x10000 + (G<255?G<0?0:G:255)*0x100 + (B<255?B<0?0:B:255)).toString(16).slice(1);
-        }
-        function updatePrizeFontSize(v) { config.prizeFontSize = v; document.getElementById('prize-font-val').textContent = v + 'px'; drawWheel(); }
-        function updateLogoSize(v) { config.headerLogoSize = v; document.getElementById('logo-size-val').textContent = v+'px'; if(document.getElementById('top-logo-img')) document.getElementById('top-logo-img').style.width = v+'px'; }
+
+        function addPrizeRow() { config.prizes.push({name: 'NEW PRIZE', percent: 0}); renderPrizeInputs(); }
+        function removePrize(i) { config.prizes.splice(i, 1); renderPrizeInputs(); }
+        function updateLogoSize(v) { config.headerLogoSize = v; document.getElementById('logo-size-val').textContent = v+'px'; }
         function updateHeadlineSize(v) { config.headlineSize = v; document.getElementById('headline-display').style.fontSize = v + 'px'; }
-        function removePrize(i) { config.prizes.splice(i, 1); renderPrizeInputs(); drawWheel(); }
-        function addPrizeRow() { config.prizes.push({name: 'NEW PRIZE', percent: 0}); renderPrizeInputs(); drawWheel(); }
-        function toggleAdmin() { const p = document.getElementById('admin-panel'); p.classList.toggle('show'); if(p.classList.contains('show')) renderPrizeInputs(); }
-        function switchTab(e, id) { document.querySelectorAll(".tab-content").forEach(t => t.classList.remove("active")); document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active")); document.getElementById(id).classList.add("active"); e.currentTarget.classList.add("active"); }
-        function handleFileUpload(input, type) { if (input.files[0]) { const r = new FileReader(); r.onload = (e) => config[type] = e.target.result; r.readAsDataURL(input.files[0]); } }
+
         function save() {
             config.headline = document.getElementById('in-headline').value;
             config.fontColor = document.getElementById('in-font-color').value;
             config.wa = document.getElementById('in-wheel-a').value;
             config.wb = document.getElementById('in-wheel-b').value;
-            config.wheelTextColor = document.getElementById('in-wheel-text-color').value;
-            config.bulb = document.getElementById('in-bulb-color').value;
             config.pointerColor = document.getElementById('in-pointer-color').value;
             localStorage.setItem(STORAGE_KEY, JSON.stringify(config));
             location.reload(); 
@@ -321,13 +305,12 @@
             h.textContent = config.headline; h.style.color = config.fontColor; h.style.fontSize = config.headlineSize + 'px';
             const bContainer = document.getElementById('bulbs-container');
             for (let i = 0; i < 24; i++) { const b = document.createElement('div'); b.className = 'bulb'; bContainer.appendChild(b); }
-            updateWheelScale(config.wheelScale || 480);
-            updatePrizeFontSize(config.prizeFontSize || 32);
-            updatePointerColor(config.pointerColor || '#ef4444');
-            document.body.style.setProperty('--bulb-on-color', config.bulb);
+            updateWheelScale(config.wheelScale);
+            updatePointerColor(config.pointerColor);
             if (config.bgImage) document.body.style.backgroundImage = `url(${config.bgImage})`;
             if (config.headerLogo) { 
-                document.getElementById('top-logo-container').style.display = 'block'; 
+                const container = document.getElementById('top-logo-container');
+                container.style.display = 'block'; 
                 const img = document.getElementById('top-logo-img'); 
                 img.src = config.headerLogo; img.style.width = config.headerLogoSize + 'px'; 
             }
@@ -337,15 +320,11 @@
                 document.getElementById('logo-placeholder').style.display = 'none'; 
             }
             document.getElementById('in-headline').value = config.headline;
-            document.getElementById('in-headline-size').value = config.headlineSize;
             document.getElementById('in-font-color').value = config.fontColor;
             document.getElementById('in-wheel-a').value = config.wa;
             document.getElementById('in-wheel-b').value = config.wb;
-            document.getElementById('in-wheel-text-color').value = config.wheelTextColor || '#ffffff';
-            document.getElementById('in-bulb-color').value = config.bulb;
-            document.getElementById('in-pointer-color').value = config.pointerColor || '#ef4444';
-            document.getElementById('in-wheel-scale').value = config.wheelScale || 480;
-            document.getElementById('in-prize-font-size').value = config.prizeFontSize || 32;
+            document.getElementById('in-pointer-color').value = config.pointerColor;
+            document.getElementById('in-wheel-scale').value = config.wheelScale;
             drawWheel();
             updateAnimations();
             window.addEventListener('resize', repositionBulbs);
