@@ -18,30 +18,23 @@
         body { 
             font-family: 'IBM Plex Sans Thai', sans-serif; 
             height: 100vh; margin: 0;
-            background-color: #e2e8f0;
             display: flex; flex-direction: column; 
             align-items: center; justify-content: center; 
             overflow: hidden; padding: 20px;
-            background-size: cover; background-position: center;
+            transition: background 0.3s;
         }
 
+        /* --- Wheel Styles --- */
         #top-logo-container { margin-bottom: 20px; display: none; text-align: center; }
         #headline-display { font-weight: 900; text-align: center; margin-bottom: 2rem; text-transform: uppercase; line-height: 1.1; }
 
         #wheel-outer-ring {
-            position: relative; 
-            width: 85vw; 
-            max-width: var(--max-wheel-size);
-            aspect-ratio: 1 / 1; 
-            background: var(--ring-color); 
-            border-radius: 50%; 
-            padding: 22px;
+            position: relative; width: 85vw; max-width: var(--max-wheel-size);
+            aspect-ratio: 1 / 1; background: var(--ring-color); 
+            border-radius: 50%; padding: 22px;
             box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5), inset 0 2px 10px rgba(255,255,255,0.1);
-            display: flex; align-items: center; justify-content: center;
-            flex-shrink: 0;
+            display: flex; align-items: center; justify-content: center; flex-shrink: 0;
         }
-
-        #bulbs-container { position: absolute; inset: 0; pointer-events: none; border-radius: 50%; }
 
         .center-ring-inner {
             position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
@@ -51,46 +44,40 @@
             display: flex; align-items: center; justify-content: center; overflow: hidden; pointer-events: none;
         }
 
-        /* ส่วนของ Pointer ที่มีการสั่น */
-        .pointer-container { 
-            position: absolute; right: -10px; top: 50%; transform: translateY(-50%); 
-            z-index: 100; filter: drop-shadow(-5px 5px 10px rgba(0,0,0,0.3));
-        }
-        
         #pointer { 
             width: 40px; height: 60px;
             background: linear-gradient(135deg, var(--pointer-color-main) 0%, var(--pointer-color-dark) 100%); 
             clip-path: polygon(50% 100%, 0% 15%, 20% 0%, 80% 0%, 100% 15%); 
-            transform-origin: center 5px; 
-            transform: rotate(90deg); /* เริ่มต้นที่ 90 องศา */
-            transition: transform 0.15s cubic-bezier(0.17, 0.67, 0.83, 0.67);
+            transform-origin: center 5px; transform: rotate(90deg);
+            transition: transform 0.1s cubic-bezier(0.17, 0.67, 0.83, 0.67);
         }
 
         #wheel-wrapper { position: relative; width: 100%; height: 100%; cursor: pointer; border-radius: 50%; }
         canvas { width: 100% !important; height: 100% !important; display: block; border-radius: 50%; }
-
         .bulb { position: absolute; width: 10px; height: 10px; background: #475569; border-radius: 50%; z-index: 6; transform: translate(-50%, -50%); }
         .bulb.active { background: var(--bulb-on-color); box-shadow: 0 0 15px var(--bulb-on-color); }
-
         .footer-text { margin-top: 3rem; color: #64748b; font-size: 14px; font-weight: 800; letter-spacing: 0.3em; text-transform: uppercase; cursor: pointer; opacity: 0.7; transition: all 0.3s; }
-        .footer-text:hover { opacity: 1; transform: scale(1.1); color: #f97316; }
 
-        #admin-panel { position: fixed; inset: 0; background: #f8fafc; z-index: 2000; display: none; flex-direction: column; text-align: left; }
+        /* --- Admin UI Styles --- */
+        .upload-card { background: #f1f5f9; border: 2px dashed #cbd5e1; border-radius: 12px; padding: 12px; position: relative; }
+        .preview-box { width: 100%; height: 80px; background: #fff; border-radius: 8px; display: flex; align-items: center; justify-content: center; overflow: hidden; margin-bottom: 8px; border: 1px solid #e2e8f0; }
+        .preview-box img { max-width: 100%; max-height: 100%; object-fit: contain; }
+        .btn-remove-img { position: absolute; top: 8px; right: 8px; width: 24px; height: 24px; background: #ef4444; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14px; cursor: pointer; }
+        .upload-input-label { display: block; width: 100%; text-align: center; font-size: 11px; background: #fff; border: 1px solid #cbd5e1; padding: 6px; border-radius: 6px; cursor: pointer; font-weight: bold; color: #64748b; }
+        #admin-panel { position: fixed; inset: 0; background: #f8fafc; z-index: 2000; display: none; flex-direction: column; }
         #admin-panel.show { display: flex; }
         .tab-btn { padding: 14px; font-weight: 700; color: #94a3b8; border-bottom: 3px solid transparent; flex: 1; text-align: center; }
         .tab-btn.active { color: #f97316; border-bottom-color: #f97316; background: rgba(249, 115, 22, 0.05); }
-        .tab-content { display: none; }
-        .tab-content.active { display: block; }
     </style>
 </head>
-<body>
+<body id="main-body">
 
     <div id="top-logo-container"><img id="top-logo-img" src=""></div>
     <h1 id="headline-display">LUCKY DRAW</h1>
 
     <div id="wheel-outer-ring">
         <div id="bulbs-container"></div>
-        <div class="pointer-container"><div id="pointer"></div></div>
+        <div class="pointer-container" style="position: absolute; right: -10px; top: 50%; transform: translateY(-50%); z-index: 100;"><div id="pointer"></div></div>
         <div class="center-ring-inner">
             <img id="inner-logo-img" src="" style="display:none;" class="max-w-[85%] max-h-[85%] object-contain">
             <span id="logo-placeholder" class="text-slate-400 text-[10px] font-black uppercase">Start</span>
@@ -109,32 +96,63 @@
             <button onclick="toggleAdmin()" class="text-4xl text-slate-300 hover:text-slate-500 mr-2">&times;</button>
         </div>
         <div class="bg-white border-b flex">
-            <button class="tab-btn active" onclick="switchTab(event, 'tab-display')">Visuals & Branding</button>
-            <button class="tab-btn" onclick="switchTab(event, 'tab-prizes')">Prizes & Odds (%)</button>
+            <button class="tab-btn active" onclick="switchTab(event, 'tab-display')">Visuals</button>
+            <button class="tab-btn" onclick="switchTab(event, 'tab-prizes')">Prizes</button>
         </div>
+        
         <div class="flex-1 overflow-y-auto p-6 bg-slate-50">
-            <div id="tab-display" class="tab-content active">
+            <div id="tab-display" class="tab-content block">
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- Media Section -->
                     <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
                         <label class="text-[11px] font-bold text-orange-500 uppercase block mb-4 tracking-wider">1. Media Uploads</label>
-                        <div class="space-y-4">
-                            <div><span class="text-xs font-bold text-slate-500">Top Logo</span><input type="file" accept="image/*" class="block w-full text-xs mt-1" onchange="handleFileUpload(this, 'headerLogo')">
-                                <div class="mt-2 flex items-center justify-between"><span class="text-[10px] text-slate-400">Size: <span id="logo-size-val">180px</span></span>
-                                <input type="range" id="in-logo-size" min="50" max="500" value="180" class="w-24 accent-orange-500" oninput="updateLogoSize(this.value)"></div>
+                        <div class="grid grid-cols-1 gap-4">
+                            <div class="upload-card">
+                                <span class="text-[10px] uppercase font-bold text-slate-400 mb-2 block">Top Logo</span>
+                                <div class="preview-box" id="pre-headerLogo"><span class="text-xs text-slate-300 italic">No image</span></div>
+                                <div id="remove-headerLogo" class="btn-remove-img" style="display:none;" onclick="removeImg('headerLogo')">&times;</div>
+                                <label class="upload-input-label">Select File <input type="file" class="hidden" onchange="handleFileUpload(this, 'headerLogo')"></label>
+                                <div class="mt-2 flex items-center justify-between">
+                                    <span class="text-[9px] text-slate-400 font-bold">Size: <span id="logo-size-val">180px</span></span>
+                                    <input type="range" min="50" max="500" value="180" class="w-20 accent-orange-500" oninput="updateLogoSize(this.value)">
+                                </div>
                             </div>
-                            <div><span class="text-xs font-bold text-slate-500">Center Logo</span><input type="file" accept="image/*" class="block w-full text-xs mt-1" onchange="handleFileUpload(this, 'centerLogo')"></div>
-                            <div><span class="text-xs font-bold text-slate-500">Background Image</span><input type="file" accept="image/*" class="block w-full text-xs mt-1" onchange="handleFileUpload(this, 'bgImage')"></div>
+                            <div class="upload-card">
+                                <span class="text-[10px] uppercase font-bold text-slate-400 mb-2 block">Center Logo</span>
+                                <div class="preview-box" id="pre-centerLogo"><span class="text-xs text-slate-300 italic">No image</span></div>
+                                <div id="remove-centerLogo" class="btn-remove-img" style="display:none;" onclick="removeImg('centerLogo')">&times;</div>
+                                <label class="upload-input-label">Select File <input type="file" class="hidden" onchange="handleFileUpload(this, 'centerLogo')"></label>
+                            </div>
+                            <div class="upload-card">
+                                <span class="text-[10px] uppercase font-bold text-slate-400 mb-2 block">Background Image</span>
+                                <div class="preview-box" id="pre-bgImage"><span class="text-xs text-slate-300 italic">No image</span></div>
+                                <div id="remove-bgImage" class="btn-remove-img" style="display:none;" onclick="removeImg('bgImage')">&times;</div>
+                                <label class="upload-input-label">Select File <input type="file" class="hidden" onchange="handleFileUpload(this, 'bgImage')"></label>
+                            </div>
+                            <div class="pt-2 border-t">
+                                <span class="text-xs font-bold text-slate-500 block mb-2">Background Color</span>
+                                <input type="color" id="in-bg-color" class="w-full h-10 rounded-lg cursor-pointer">
+                            </div>
                         </div>
                     </div>
+
                     <div class="space-y-6">
+                        <!-- Headline Control -->
                         <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
                             <label class="text-[11px] font-bold text-orange-500 uppercase block mb-4 tracking-wider">2. Headline Control</label>
                             <input id="in-headline" type="text" class="w-full p-2 border border-slate-200 rounded-lg text-sm font-bold mb-3">
                             <div class="grid grid-cols-2 gap-4">
-                                <div><span class="text-[10px] font-bold text-slate-400 block uppercase">Size</span><input type="range" id="in-headline-size" min="20" max="120" value="48" class="w-full accent-orange-500" oninput="updateHeadlineSize(this.value)"></div>
+                                <div>
+                                    <div class="flex justify-between mb-1">
+                                        <span class="text-[10px] font-bold text-slate-400 block uppercase">Size</span>
+                                        <span id="headline-size-val" class="text-[10px] font-bold text-orange-500">48px</span>
+                                    </div>
+                                    <input type="range" id="in-headline-size" min="20" max="120" value="48" class="w-full accent-orange-500" oninput="updateHeadlineSize(this.value)">
+                                </div>
                                 <div><span class="text-[10px] font-bold text-slate-400 block uppercase">Color</span><input type="color" id="in-font-color" class="w-full h-8 cursor-pointer"></div>
                             </div>
                         </div>
+                        <!-- Wheel Style -->
                         <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
                             <label class="text-[11px] font-bold text-orange-500 uppercase block mb-4 tracking-wider">3. Wheel Appearance</label>
                             <div class="grid grid-cols-3 gap-2 mb-4">
@@ -148,7 +166,11 @@
                     </div>
                 </div>
             </div>
-            <div id="tab-prizes" class="tab-content">
+            <!-- Tab Prizes -->
+            <div id="tab-prizes" class="tab-content hidden">
+                <div class="bg-orange-50 p-4 rounded-xl mb-4 text-[11px] text-orange-700 border border-orange-100">
+                    💡 <b>เคล็ดลับ:</b> หากใส่ <b>0% ทุกช่อง</b> ระบบจะสุ่มออกแบบเฉลี่ยเท่ากันโดยอัตโนมัติ
+                </div>
                 <div id="prize-list-container" class="space-y-2"></div>
                 <button onclick="addPrizeRow()" class="w-full bg-white border-2 border-dashed border-slate-300 p-4 rounded-2xl mt-4 font-bold text-slate-400">+ Add Prize Item</button>
             </div>
@@ -162,16 +184,14 @@
             headline: 'LUCKY DRAW', headlineSize: 48, fontColor: '#1e293b',
             wa: '#f97316', wb: '#1e293b', wheelTextColor: '#ffffff',
             ringColor: '#1e293b', bulb: '#fff700', pointerColor: '#ef4444',
-            headerLogoSize: 180, wheelScale: 480, prizeFontSize: 28, 
-            prizes: [{name:'IPHONE 15', percent: 10}, {name:'GOLD BAR', percent: 5}, {name:'CASH 1,000', percent: 20}, {name:'MOTO BIKE', percent: 5}, {name:'THANK YOU', percent: 40}, {name:'VOUCHER', percent: 20}],
+            bgColor: '#e2e8f0', headerLogoSize: 180, wheelScale: 480, prizeFontSize: 28, 
+            prizes: [{name:'IPHONE 15', percent: 0}, {name:'GOLD BAR', percent: 0}, {name:'CASH 1,000', percent: 0}, {name:'THANK YOU', percent: 0}],
             headerLogo: '', centerLogo: '', bgImage: ''
         };
 
         const canvas = document.getElementById('wheelCanvas');
         const ctx = canvas.getContext('2d');
-        let isSpinning = false;
-        let currentRotation = 0; 
-        let lastPassedPrizeIndex = -1; // ตัวแปรเช็คว่าผ่านซี่หรือยัง
+        let isSpinning = false, currentRotation = 0, lastPassedPrizeIndex = -1;
 
         function drawWheel() {
             const c = canvas.width / 2, r = c - 10, arc = (2 * Math.PI) / config.prizes.length;
@@ -187,97 +207,84 @@
             });
         }
 
-        function updateWheelScale(v) {
-            config.wheelScale = v;
-            document.getElementById('wheel-scale-val').textContent = v + 'px';
-            document.documentElement.style.setProperty('--max-wheel-size', v + 'px');
-            setTimeout(repositionBulbs, 50);
-        }
-
-        function repositionBulbs() {
-            const ring = document.getElementById('wheel-outer-ring');
-            const bulbs = document.querySelectorAll('.bulb');
-            const ringSize = ring.offsetWidth;
-            const bulbDist = (ringSize / 2) - 11;
-            bulbs.forEach((b, i) => {
-                const angle = (i * (360 / bulbs.length)) * (Math.PI / 180);
-                const x = 50 + (bulbDist / ringSize * 100) * Math.cos(angle);
-                const y = 50 + (bulbDist / ringSize * 100) * Math.sin(angle);
-                b.style.left = x + '%'; b.style.top = y + '%';
-            });
-        }
-
         function startSpin() {
             if (isSpinning) return;
-            isSpinning = true;
-            const totalWeight = config.prizes.reduce((sum, p) => sum + (parseFloat(p.percent) || 0), 0);
-            let randomNum = Math.random() * totalWeight;
+            
+            const prizes = config.prizes;
+            const totalWeight = prizes.reduce((sum, p) => sum + (parseFloat(p.percent) || 0), 0);
             let winnerIndex = 0;
-            for (let i = 0; i < config.prizes.length; i++) {
-                if (randomNum < (parseFloat(config.prizes[i].percent) || 0)) { winnerIndex = i; break; }
-                randomNum -= (parseFloat(config.prizes[i].percent) || 0);
+
+            // ตรรกะสุ่ม: ถ้าทุกช่องเป็น 0 ให้สุ่มแบบเท่ากัน
+            if (totalWeight <= 0) {
+                winnerIndex = Math.floor(Math.random() * prizes.length);
+            } else {
+                let randomNum = Math.random() * totalWeight;
+                for (let i = 0; i < prizes.length; i++) {
+                    const weight = parseFloat(prizes[i].percent) || 0;
+                    if (randomNum < weight) { winnerIndex = i; break; }
+                    randomNum -= weight;
+                }
             }
-            const degPerPrize = 360 / config.prizes.length;
-            const stopAt = 360 - (winnerIndex * degPerPrize + (degPerPrize / 2));
+
+            isSpinning = true;
+            const stopAt = 360 - (winnerIndex * (360 / prizes.length) + (180 / prizes.length));
             const totalRotation = currentRotation + (360 * 8) + stopAt - (currentRotation % 360);
             const wheel = document.getElementById('wheel-wrapper');
+            
             wheel.style.transition = `transform 6s cubic-bezier(0.15, 0, 0.15, 1)`;
             wheel.style.transform = `rotate(${totalRotation}deg)`;
+            
             setTimeout(() => { currentRotation = totalRotation; isSpinning = false; }, 6000);
         }
 
         function updateAnimations() {
-            const wheel = document.getElementById('wheel-wrapper');
-            const pointer = document.getElementById('pointer');
-            const style = window.getComputedStyle(wheel);
-            const matrix = new DOMMatrixReadOnly(style.transform);
-            
-            // คำนวณองศาปัจจุบัน
+            const wheel = document.getElementById('wheel-wrapper'), pointer = document.getElementById('pointer');
+            const style = window.getComputedStyle(wheel), matrix = new DOMMatrixReadOnly(style.transform);
             const angle = Math.atan2(matrix.b, matrix.a) * (180 / Math.PI);
             const currentAngle = (angle < 0 ? angle + 360 : angle);
-            
-            // --- ส่วนที่ทำให้ Pointer สั่นขยับ ---
-            const prizeCount = config.prizes.length;
-            const degPerPrize = 360 / prizeCount;
-            // คำนวณว่าตอนนี้เราอยู่ที่ชิ้นส่วนที่เท่าไหร่ (เลื่อนจุดตรวจสอบไปที่ 90 องศาซึ่งเป็นที่ตั้งลูกศร)
-            const prizeIndex = Math.floor(((currentAngle + 90) % 360) / degPerPrize);
+            const prizeIndex = Math.floor(((currentAngle + 90) % 360) / (360 / config.prizes.length));
             
             if (prizeIndex !== lastPassedPrizeIndex) {
-                // เมื่อข้ามซี่ ให้ลูกศรกระดก
-                pointer.style.transform = `rotate(65deg)`; // กระดกขึ้น
-                setTimeout(() => {
-                    pointer.style.transform = `rotate(90deg)`; // กลับมาที่เดิม
-                }, 100);
+                pointer.style.transform = `rotate(70deg)`; setTimeout(() => { pointer.style.transform = `rotate(90deg)`; }, 80);
                 lastPassedPrizeIndex = prizeIndex;
             }
-
-            // แอนิเมชั่นหลอดไฟ
             const idleOffset = Math.floor(Date.now() / 300);
             document.querySelectorAll('.bulb').forEach((b, i) => {
                 b.classList.toggle('active', (i + idleOffset + Math.floor(currentAngle/15)) % 2 === 0);
             });
-            
             requestAnimationFrame(updateAnimations);
         }
 
-        function updatePointerColor(hex) {
-            config.pointerColor = hex;
-            document.documentElement.style.setProperty('--pointer-color-main', hex);
-            document.documentElement.style.setProperty('--pointer-color-dark', hex + '99');
+        function handleFileUpload(input, type) {
+            if (input.files[0]) {
+                const r = new FileReader();
+                r.onload = (e) => { config[type] = e.target.result; renderPreview(type, e.target.result); };
+                r.readAsDataURL(input.files[0]);
+            }
         }
 
-        function handleFileUpload(input, type) { if (input.files[0]) { const r = new FileReader(); r.onload = (e) => config[type] = e.target.result; r.readAsDataURL(input.files[0]); } }
+        function renderPreview(type, src) {
+            const box = document.getElementById(`pre-${type}`);
+            const btn = document.getElementById(`remove-${type}`);
+            if (src) { box.innerHTML = `<img src="${src}">`; btn.style.display = 'flex'; }
+            else { box.innerHTML = `<span class="text-xs text-slate-300 italic">No image</span>`; btn.style.display = 'none'; }
+        }
+
+        function removeImg(type) { config[type] = ''; renderPreview(type, ''); }
         function toggleAdmin() { document.getElementById('admin-panel').classList.toggle('show'); renderPrizeInputs(); }
-        function switchTab(e, id) { document.querySelectorAll(".tab-content").forEach(t => t.classList.remove("active")); document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active")); document.getElementById(id).classList.add("active"); e.currentTarget.classList.add("active"); }
-        
+        function switchTab(e, id) { 
+            document.querySelectorAll(".tab-content").forEach(t => t.classList.add("hidden"));
+            document.getElementById(id).classList.remove("hidden");
+            document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
+            e.currentTarget.classList.add("active");
+        }
+
         function renderPrizeInputs() {
-            const container = document.getElementById('prize-list-container');
-            container.innerHTML = '';
+            const container = document.getElementById('prize-list-container'); container.innerHTML = '';
             config.prizes.forEach((p, i) => {
-                const row = document.createElement('div');
-                row.className = "flex gap-2 bg-white p-2 rounded-lg border items-center";
-                row.innerHTML = `<input class="flex-1 font-bold text-sm" value="${p.name}" oninput="config.prizes[${i}].name=this.value">
-                    <input type="number" class="w-16 text-center text-orange-600 font-bold" value="${p.percent}" oninput="config.prizes[${i}].percent=this.value">
+                const row = document.createElement('div'); row.className = "flex gap-2 bg-white p-2 rounded-lg border items-center shadow-sm";
+                row.innerHTML = `<input class="flex-1 font-bold text-sm px-2" value="${p.name}" oninput="config.prizes[${i}].name=this.value">
+                    <div class="flex items-center gap-1 bg-slate-50 px-2 rounded-md border"><input type="number" class="w-12 text-center text-orange-600 font-bold bg-transparent" value="${p.percent}" oninput="config.prizes[${i}].percent=this.value"><span class="text-[10px] text-slate-400">%</span></div>
                     <button onclick="removePrize(${i})" class="text-red-400 px-2 text-xl">&times;</button>`;
                 container.appendChild(row);
             });
@@ -286,7 +293,20 @@
         function addPrizeRow() { config.prizes.push({name: 'NEW PRIZE', percent: 0}); renderPrizeInputs(); }
         function removePrize(i) { config.prizes.splice(i, 1); renderPrizeInputs(); }
         function updateLogoSize(v) { config.headerLogoSize = v; document.getElementById('logo-size-val').textContent = v+'px'; }
-        function updateHeadlineSize(v) { config.headlineSize = v; document.getElementById('headline-display').style.fontSize = v + 'px'; }
+        function updateHeadlineSize(v) { config.headlineSize = v; document.getElementById('headline-display').style.fontSize = v + 'px'; document.getElementById('headline-size-val').textContent = v + 'px'; }
+        function updateWheelScale(v) { config.wheelScale = v; document.getElementById('wheel-scale-val').textContent = v + 'px'; document.documentElement.style.setProperty('--max-wheel-size', v + 'px'); setTimeout(repositionBulbs, 50); }
+        function updatePointerColor(v) { config.pointerColor = v; document.documentElement.style.setProperty('--pointer-color-main', v); document.documentElement.style.setProperty('--pointer-color-dark', v + '99'); }
+
+        function repositionBulbs() {
+            const ring = document.getElementById('wheel-outer-ring'), bulbs = document.querySelectorAll('.bulb');
+            if(!ring || bulbs.length === 0) return;
+            const ringSize = ring.offsetWidth, bulbDist = (ringSize / 2) - 11;
+            bulbs.forEach((b, i) => {
+                const angle = (i * (360 / bulbs.length)) * (Math.PI / 180);
+                b.style.left = 50 + (bulbDist / ringSize * 100) * Math.cos(angle) + '%';
+                b.style.top = 50 + (bulbDist / ringSize * 100) * Math.sin(angle) + '%';
+            });
+        }
 
         function save() {
             config.headline = document.getElementById('in-headline').value;
@@ -295,37 +315,47 @@
             config.wb = document.getElementById('in-wheel-b').value;
             config.pointerColor = document.getElementById('in-pointer-color').value;
             config.wheelScale = document.getElementById('in-wheel-scale').value;
+            config.bgColor = document.getElementById('in-bg-color').value;
             localStorage.setItem(STORAGE_KEY, JSON.stringify(config));
             location.reload(); 
         }
 
         window.onload = () => {
-            const h = document.getElementById('headline-display');
-            h.textContent = config.headline; h.style.color = config.fontColor; h.style.fontSize = config.headlineSize + 'px';
-            const bContainer = document.getElementById('bulbs-container');
-            for (let i = 0; i < 24; i++) { const b = document.createElement('div'); b.className = 'bulb'; bContainer.appendChild(b); }
-            updateWheelScale(config.wheelScale);
+            const body = document.getElementById('main-body'); body.style.backgroundColor = config.bgColor;
+            if (config.bgImage) body.style.backgroundImage = `url(${config.bgImage})`;
+            
+            const h = document.getElementById('headline-display'); h.textContent = config.headline; h.style.color = config.fontColor;
+            
+            const bContainer = document.getElementById('bulbs-container'); for (let i = 0; i < 24; i++) { const b = document.createElement('div'); b.className = 'bulb'; bContainer.appendChild(b); }
+            
+            updateWheelScale(config.wheelScale); 
+            updateHeadlineSize(config.headlineSize);
             updatePointerColor(config.pointerColor);
-            if (config.bgImage) document.body.style.backgroundImage = `url(${config.bgImage})`;
+            
             if (config.headerLogo) { 
-                const container = document.getElementById('top-logo-container');
-                container.style.display = 'block'; 
-                const img = document.getElementById('top-logo-img'); 
-                img.src = config.headerLogo; img.style.width = config.headerLogoSize + 'px'; 
+                document.getElementById('top-logo-container').style.display = 'block'; 
+                document.getElementById('top-logo-img').src = config.headerLogo; 
+                document.getElementById('top-logo-img').style.width = config.headerLogoSize + 'px'; 
             }
             if (config.centerLogo) { 
-                const img = document.getElementById('inner-logo-img'); 
-                img.src = config.centerLogo; img.style.display = 'block'; 
+                document.getElementById('inner-logo-img').src = config.centerLogo; 
+                document.getElementById('inner-logo-img').style.display = 'block'; 
                 document.getElementById('logo-placeholder').style.display = 'none'; 
             }
+
             document.getElementById('in-headline').value = config.headline;
+            document.getElementById('in-headline-size').value = config.headlineSize;
             document.getElementById('in-font-color').value = config.fontColor;
             document.getElementById('in-wheel-a').value = config.wa;
             document.getElementById('in-wheel-b').value = config.wb;
             document.getElementById('in-pointer-color').value = config.pointerColor;
             document.getElementById('in-wheel-scale').value = config.wheelScale;
-            drawWheel();
-            updateAnimations();
+            document.getElementById('in-bg-color').value = config.bgColor;
+            
+            ['headerLogo', 'centerLogo', 'bgImage'].forEach(type => renderPreview(type, config[type]));
+            
+            drawWheel(); 
+            updateAnimations(); 
             window.addEventListener('resize', repositionBulbs);
         };
     </script>
