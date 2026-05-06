@@ -54,7 +54,7 @@
 
         #wheel-wrapper { position: relative; width: 100%; height: 100%; cursor: pointer; border-radius: 50%; }
         canvas { width: 100% !important; height: 100% !important; display: block; border-radius: 50%; }
-        .bulb { position: absolute; width: 10px; height: 10px; background: #475569; border-radius: 50%; z-index: 6; transform: translate(-50%, -50%); }
+        .bulb { position: absolute; width: 10px; height: 10px; background: rgba(0,0,0,0.3); border-radius: 50%; z-index: 6; transform: translate(-50%, -50%); }
         .bulb.active { background: var(--bulb-on-color); box-shadow: 0 0 15px var(--bulb-on-color); }
         .footer-text { margin-top: 3rem; color: #64748b; font-size: 14px; font-weight: 800; letter-spacing: 0.3em; text-transform: uppercase; cursor: pointer; opacity: 0.7; transition: all 0.3s; }
 
@@ -152,14 +152,31 @@
                                 <div><span class="text-[10px] font-bold text-slate-400 block uppercase">Color</span><input type="color" id="in-font-color" class="w-full h-8 cursor-pointer"></div>
                             </div>
                         </div>
-                        <!-- Wheel Style -->
+                        <!-- Wheel Style & Font -->
                         <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
                             <label class="text-[11px] font-bold text-orange-500 uppercase block mb-4 tracking-wider">3. Wheel Appearance</label>
+                            
+                            <!-- แถวสีหลัก -->
                             <div class="grid grid-cols-3 gap-2 mb-4">
                                 <div><span class="text-[9px] text-slate-400 uppercase font-bold">Color A</span><input type="color" id="in-wheel-a" class="w-full h-8 rounded-md"></div>
                                 <div><span class="text-[9px] text-slate-400 uppercase font-bold">Color B</span><input type="color" id="in-wheel-b" class="w-full h-8 rounded-md"></div>
                                 <div><span class="text-[9px] text-red-600 uppercase font-bold">Pointer</span><input type="color" id="in-pointer-color" class="w-full h-8 rounded-md" oninput="updatePointerColor(this.value)"></div>
                             </div>
+
+                            <!-- ส่วนที่กู้คืน: สีขอบและสีไฟ -->
+                            <div class="grid grid-cols-2 gap-4 mb-4 border-t pt-4">
+                                <div><span class="text-[9px] text-slate-500 uppercase font-bold">Ring Color</span><input type="color" id="in-ring-color" class="w-full h-8 rounded-md" oninput="updateRingColor(this.value)"></div>
+                                <div><span class="text-[9px] text-slate-500 uppercase font-bold">Bulb Light</span><input type="color" id="in-bulb-color" class="w-full h-8 rounded-md" oninput="updateBulbColor(this.value)"></div>
+                            </div>
+                            
+                            <div class="mb-4">
+                                <div class="flex justify-between mb-1">
+                                    <span class="text-[10px] font-bold text-slate-500 uppercase">Prize Font Size</span>
+                                    <span id="prize-font-val" class="text-[10px] text-orange-500">28px</span>
+                                </div>
+                                <input type="range" id="in-prize-font" min="10" max="80" value="28" class="w-full accent-orange-500" oninput="updatePrizeFontSize(this.value)">
+                            </div>
+
                             <div class="flex justify-between"><span class="text-[10px] font-bold text-slate-500 uppercase">Wheel Scale</span><span id="wheel-scale-val" class="text-[10px] text-orange-500">480px</span></div>
                             <input type="range" id="in-wheel-scale" min="200" max="800" value="480" class="w-full accent-orange-500" oninput="updateWheelScale(this.value)">
                         </div>
@@ -209,12 +226,9 @@
 
         function startSpin() {
             if (isSpinning) return;
-            
             const prizes = config.prizes;
             const totalWeight = prizes.reduce((sum, p) => sum + (parseFloat(p.percent) || 0), 0);
             let winnerIndex = 0;
-
-            // ตรรกะสุ่ม: ถ้าทุกช่องเป็น 0 ให้สุ่มแบบเท่ากัน
             if (totalWeight <= 0) {
                 winnerIndex = Math.floor(Math.random() * prizes.length);
             } else {
@@ -225,15 +239,12 @@
                     randomNum -= weight;
                 }
             }
-
             isSpinning = true;
             const stopAt = 360 - (winnerIndex * (360 / prizes.length) + (180 / prizes.length));
             const totalRotation = currentRotation + (360 * 8) + stopAt - (currentRotation % 360);
             const wheel = document.getElementById('wheel-wrapper');
-            
             wheel.style.transition = `transform 6s cubic-bezier(0.15, 0, 0.15, 1)`;
             wheel.style.transform = `rotate(${totalRotation}deg)`;
-            
             setTimeout(() => { currentRotation = totalRotation; isSpinning = false; }, 6000);
         }
 
@@ -243,7 +254,6 @@
             const angle = Math.atan2(matrix.b, matrix.a) * (180 / Math.PI);
             const currentAngle = (angle < 0 ? angle + 360 : angle);
             const prizeIndex = Math.floor(((currentAngle + 90) % 360) / (360 / config.prizes.length));
-            
             if (prizeIndex !== lastPassedPrizeIndex) {
                 pointer.style.transform = `rotate(70deg)`; setTimeout(() => { pointer.style.transform = `rotate(90deg)`; }, 80);
                 lastPassedPrizeIndex = prizeIndex;
@@ -292,10 +302,14 @@
 
         function addPrizeRow() { config.prizes.push({name: 'NEW PRIZE', percent: 0}); renderPrizeInputs(); }
         function removePrize(i) { config.prizes.splice(i, 1); renderPrizeInputs(); }
+        
         function updateLogoSize(v) { config.headerLogoSize = v; document.getElementById('logo-size-val').textContent = v+'px'; }
         function updateHeadlineSize(v) { config.headlineSize = v; document.getElementById('headline-display').style.fontSize = v + 'px'; document.getElementById('headline-size-val').textContent = v + 'px'; }
         function updateWheelScale(v) { config.wheelScale = v; document.getElementById('wheel-scale-val').textContent = v + 'px'; document.documentElement.style.setProperty('--max-wheel-size', v + 'px'); setTimeout(repositionBulbs, 50); }
         function updatePointerColor(v) { config.pointerColor = v; document.documentElement.style.setProperty('--pointer-color-main', v); document.documentElement.style.setProperty('--pointer-color-dark', v + '99'); }
+        function updateRingColor(v) { config.ringColor = v; document.documentElement.style.setProperty('--ring-color', v); }
+        function updateBulbColor(v) { config.bulb = v; document.documentElement.style.setProperty('--bulb-on-color', v); }
+        function updatePrizeFontSize(v) { config.prizeFontSize = v; document.getElementById('prize-font-val').textContent = v + 'px'; drawWheel(); }
 
         function repositionBulbs() {
             const ring = document.getElementById('wheel-outer-ring'), bulbs = document.querySelectorAll('.bulb');
@@ -314,8 +328,11 @@
             config.wa = document.getElementById('in-wheel-a').value;
             config.wb = document.getElementById('in-wheel-b').value;
             config.pointerColor = document.getElementById('in-pointer-color').value;
+            config.ringColor = document.getElementById('in-ring-color').value;
+            config.bulb = document.getElementById('in-bulb-color').value;
             config.wheelScale = document.getElementById('in-wheel-scale').value;
             config.bgColor = document.getElementById('in-bg-color').value;
+            config.prizeFontSize = document.getElementById('in-prize-font').value;
             localStorage.setItem(STORAGE_KEY, JSON.stringify(config));
             location.reload(); 
         }
@@ -323,15 +340,16 @@
         window.onload = () => {
             const body = document.getElementById('main-body'); body.style.backgroundColor = config.bgColor;
             if (config.bgImage) body.style.backgroundImage = `url(${config.bgImage})`;
-            
             const h = document.getElementById('headline-display'); h.textContent = config.headline; h.style.color = config.fontColor;
-            
             const bContainer = document.getElementById('bulbs-container'); for (let i = 0; i < 24; i++) { const b = document.createElement('div'); b.className = 'bulb'; bContainer.appendChild(b); }
             
             updateWheelScale(config.wheelScale); 
             updateHeadlineSize(config.headlineSize);
             updatePointerColor(config.pointerColor);
-            
+            updateRingColor(config.ringColor);
+            updateBulbColor(config.bulb);
+            updatePrizeFontSize(config.prizeFontSize);
+
             if (config.headerLogo) { 
                 document.getElementById('top-logo-container').style.display = 'block'; 
                 document.getElementById('top-logo-img').src = config.headerLogo; 
@@ -343,14 +361,18 @@
                 document.getElementById('logo-placeholder').style.display = 'none'; 
             }
 
+            // Sync Admin Inputs
             document.getElementById('in-headline').value = config.headline;
             document.getElementById('in-headline-size').value = config.headlineSize;
             document.getElementById('in-font-color').value = config.fontColor;
             document.getElementById('in-wheel-a').value = config.wa;
             document.getElementById('in-wheel-b').value = config.wb;
             document.getElementById('in-pointer-color').value = config.pointerColor;
+            document.getElementById('in-ring-color').value = config.ringColor;
+            document.getElementById('in-bulb-color').value = config.bulb;
             document.getElementById('in-wheel-scale').value = config.wheelScale;
             document.getElementById('in-bg-color').value = config.bgColor;
+            document.getElementById('in-prize-font').value = config.prizeFontSize;
             
             ['headerLogo', 'centerLogo', 'bgImage'].forEach(type => renderPreview(type, config[type]));
             
